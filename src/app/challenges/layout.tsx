@@ -1,5 +1,8 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+'use client';
+
+import { AuthGuard } from '@/components/auth-guard';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 
 export default function ChallengesLayout({
   children,
@@ -7,10 +10,12 @@ export default function ChallengesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">{children}</main>
-      <Footer />
-    </div>
+    <AuthGuard>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
+    </AuthGuard>
   );
 }

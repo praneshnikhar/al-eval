@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { useRouter } from 'next/navigation';
 import type { Challenge } from '@/lib/data';
 import { challenges as initialChallenges } from '@/lib/data';
+import { useAuth } from '@/hooks/use-auth';
 
 const hostChallengeSchema = z.object({
   title: z.string().min(5, { message: 'Title must be at least 5 characters long.' }),
@@ -59,6 +60,8 @@ export function HostChallengeForm({ initialData }: HostChallengeFormProps) {
   const isEditMode = !!initialData;
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
+  
   const form = useForm<HostChallengeFormValues>({
     resolver: zodResolver(hostChallengeSchema),
     defaultValues: isEditMode
@@ -81,6 +84,15 @@ export function HostChallengeForm({ initialData }: HostChallengeFormProps) {
   });
 
   function onSubmit(data: HostChallengeFormValues) {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to host a challenge.",
+        });
+        return;
+    }
+    
     const difficulty = data.difficulty.charAt(0).toUpperCase() + data.difficulty.slice(1) as Challenge['difficulty'];
 
     try {
@@ -126,7 +138,8 @@ export function HostChallengeForm({ initialData }: HostChallengeFormProps) {
           difficulty: difficulty,
           startDate: data.startDate,
           endDate: data.endDate,
-          host: 'Community Host',
+          host: user.email.split('@')[0],
+          hostEmail: user.email,
           participantCount: 0,
           status: data.startDate > new Date() ? 'Upcoming' : 'Active',
           maxParticipants: data.maxParticipants,

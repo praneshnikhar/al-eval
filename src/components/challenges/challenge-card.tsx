@@ -1,3 +1,5 @@
+'use client';
+
 import type { Challenge } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +9,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
+import { useAuth } from '@/hooks/use-auth';
 
 interface ChallengeCardProps {
   challenge: Challenge;
@@ -14,6 +17,9 @@ interface ChallengeCardProps {
 }
 
 export function ChallengeCard({ challenge, onDelete }: ChallengeCardProps) {
+  const { user } = useAuth();
+  const isHost = user?.email === challenge.hostEmail;
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -63,22 +69,26 @@ export function ChallengeCard({ challenge, onDelete }: ChallengeCardProps) {
                 <Link href={`/challenges/${challenge.id}`}>View Details</Link>
             </Button>
         </div>
-        <Separator className="my-1" />
-        <div className="flex w-full items-center justify-between">
-            <p className="text-xs text-muted-foreground">Host actions:</p>
-            <div className="flex gap-1">
-                <Button asChild variant="ghost" size="icon">
-                    <Link href={`/challenges/edit/${challenge.id}`}>
-                        <Pencil className="h-4 w-4" />
-                        <span className="sr-only">Edit Challenge</span>
-                    </Link>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => onDelete(challenge.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                    <span className="sr-only">Delete Challenge</span>
-                </Button>
+        {isHost && (
+          <>
+            <Separator className="my-1" />
+            <div className="flex w-full items-center justify-between">
+                <p className="text-xs text-muted-foreground">Host actions:</p>
+                <div className="flex gap-1">
+                    <Button asChild variant="ghost" size="icon">
+                        <Link href={`/challenges/edit/${challenge.id}`}>
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">Edit Challenge</span>
+                        </Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => onDelete(challenge.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <span className="sr-only">Delete Challenge</span>
+                    </Button>
+                </div>
             </div>
-        </div>
+          </>
+        )}
       </CardFooter>
     </Card>
   );
