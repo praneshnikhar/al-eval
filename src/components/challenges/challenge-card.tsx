@@ -55,7 +55,7 @@ export function ChallengeCard({ challenge, onDelete }: ChallengeCardProps) {
       <CardFooter className="flex-col items-stretch gap-2">
         <div className="flex w-full gap-2">
             <Button asChild className="w-full" disabled={challenge.status === 'Completed'}>
-                <Link href={`/challenges/${challenge.id}`}>
+                <Link href={`/challenges/${challenge.id}/register`}>
                     {challenge.status === 'Upcoming' ? 'Register' : 'Join Challenge'}
                 </Link>
             </Button>
