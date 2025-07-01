@@ -10,11 +10,13 @@ import { Calendar, Users, BarChart, ArrowLeft, Trophy } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ChallengeDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const { toast } = useToast();
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,15 @@ export default function ChallengeDetailPage() {
       document.title = `${challenge.title} | AI Model Evaluator`;
     }
   }, [challenge]);
+
+  const handleRegister = () => {
+    if (!challenge) return;
+    const actionText = challenge.status === 'Upcoming' ? 'registered for' : 'joined';
+    toast({
+      title: `Successfully ${actionText} the challenge!`,
+      description: `You are now a participant in "${challenge.title}".`,
+    });
+  };
 
   if (loading) {
     return (
@@ -98,7 +109,7 @@ export default function ChallengeDetailPage() {
                         <CardTitle className="text-3xl font-bold">{challenge.title}</CardTitle>
                         <CardDescription className="mt-1">Hosted by {challenge.host}</CardDescription>
                     </div>
-                    <Button size="lg" disabled={isCompleted}>
+                    <Button size="lg" disabled={isCompleted} onClick={handleRegister}>
                         {challenge.status === 'Upcoming' ? 'Register' : 'Join Challenge'}
                     </Button>
                 </div>
