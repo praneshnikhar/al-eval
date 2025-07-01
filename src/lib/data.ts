@@ -106,6 +106,8 @@ export type Challenge = {
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   status: 'Upcoming' | 'Active' | 'Completed';
   category: string;
+  maxParticipants?: number;
+  evaluationType: 'automated' | 'human' | 'mixed';
 };
 
 export const challenges: Challenge[] = [
@@ -120,6 +122,7 @@ export const challenges: Challenge[] = [
     difficulty: 'Intermediate',
     status: 'Active',
     category: 'Creative Writing',
+    evaluationType: 'human',
   },
   {
     id: 'challenge-2',
@@ -132,6 +135,8 @@ export const challenges: Challenge[] = [
     difficulty: 'Advanced',
     status: 'Upcoming',
     category: 'Code Generation',
+    evaluationType: 'automated',
+    maxParticipants: 300,
   },
   {
     id: 'challenge-3',
@@ -144,6 +149,7 @@ export const challenges: Challenge[] = [
     difficulty: 'Advanced',
     status: 'Upcoming',
     category: 'Translation',
+    evaluationType: 'mixed',
   },
   {
     id: 'challenge-4',
@@ -156,5 +162,7 @@ export const challenges: Challenge[] = [
     difficulty: 'Beginner',
     status: 'Completed',
     category: 'Reasoning',
+    evaluationType: 'mixed',
+    maxParticipants: 500,
   },
 ];

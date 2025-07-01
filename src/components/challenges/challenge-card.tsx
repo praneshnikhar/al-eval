@@ -2,16 +2,18 @@ import type { Challenge } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, Calendar, BarChart } from 'lucide-react';
+import { Users, Calendar, BarChart, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Separator } from '../ui/separator';
 
 interface ChallengeCardProps {
   challenge: Challenge;
+  onDelete: (challengeId: string) => void;
 }
 
-export function ChallengeCard({ challenge }: ChallengeCardProps) {
+export function ChallengeCard({ challenge, onDelete }: ChallengeCardProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -50,15 +52,33 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
             <span>{format(challenge.startDate, 'MMM d')} - {format(challenge.endDate, 'MMM d, yyyy')}</span>
         </div>
       </CardContent>
-      <CardFooter className="gap-2">
-        <Button asChild className="w-full" disabled={challenge.status === 'Completed'}>
-            <Link href={`/challenges/${challenge.id}`}>
-                {challenge.status === 'Upcoming' ? 'Register' : 'Join Challenge'}
-            </Link>
-        </Button>
-        <Button asChild variant="outline" className="w-full">
-            <Link href={`/challenges/${challenge.id}`}>View Details</Link>
-        </Button>
+      <CardFooter className="flex-col items-stretch gap-2">
+        <div className="flex w-full gap-2">
+            <Button asChild className="w-full" disabled={challenge.status === 'Completed'}>
+                <Link href={`/challenges/${challenge.id}`}>
+                    {challenge.status === 'Upcoming' ? 'Register' : 'Join Challenge'}
+                </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+                <Link href={`/challenges/${challenge.id}`}>View Details</Link>
+            </Button>
+        </div>
+        <Separator className="my-1" />
+        <div className="flex w-full items-center justify-between">
+            <p className="text-xs text-muted-foreground">Host actions:</p>
+            <div className="flex gap-1">
+                <Button asChild variant="ghost" size="icon">
+                    <Link href={`/challenges/edit/${challenge.id}`}>
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit Challenge</span>
+                    </Link>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => onDelete(challenge.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <span className="sr-only">Delete Challenge</span>
+                </Button>
+            </div>
+        </div>
       </CardFooter>
     </Card>
   );

@@ -51,46 +51,87 @@ const hostChallengeSchema = z.object({
 
 type HostChallengeFormValues = z.infer<typeof hostChallengeSchema>;
 
-export function HostChallengeForm() {
+interface HostChallengeFormProps {
+  initialData?: Challenge;
+}
+
+export function HostChallengeForm({ initialData }: HostChallengeFormProps) {
+  const isEditMode = !!initialData;
   const router = useRouter();
   const { toast } = useToast();
   const form = useForm<HostChallengeFormValues>({
     resolver: zodResolver(hostChallengeSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      maxParticipants: undefined,
-    },
+    defaultValues: isEditMode
+      ? {
+          title: initialData.title,
+          description: initialData.description,
+          category: initialData.category,
+          difficulty: initialData.difficulty.toLowerCase(),
+          startDate: new Date(initialData.startDate),
+          endDate: new Date(initialData.endDate),
+          maxParticipants: initialData.maxParticipants,
+          evaluationType: initialData.evaluationType,
+        }
+      : {
+          title: '',
+          description: '',
+          evaluationType: 'mixed',
+          maxParticipants: undefined,
+        },
   });
 
   function onSubmit(data: HostChallengeFormValues) {
     const difficulty = data.difficulty.charAt(0).toUpperCase() + data.difficulty.slice(1) as Challenge['difficulty'];
 
-    const newChallenge: Challenge = {
-      id: `challenge-${Date.now()}`,
-      title: data.title,
-      description: data.description,
-      category: data.category,
-      difficulty: difficulty,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      host: 'Community Host',
-      participantCount: 0,
-      status: data.startDate > new Date() ? 'Upcoming' : 'Active',
-    };
-
     try {
       const storedChallengesJSON = localStorage.getItem('challenges');
-      const currentChallenges = storedChallengesJSON ? JSON.parse(storedChallengesJSON) : initialChallenges;
+      const currentChallenges = storedChallengesJSON ? JSON.parse(storedChallengesJSON).map((c: any) => ({...c, startDate: new Date(c.startDate), endDate: new Date(c.endDate)})) : initialChallenges;
       
-      const updatedChallenges = [newChallenge, ...currentChallenges];
-      
-      localStorage.setItem('challenges', JSON.stringify(updatedChallenges));
+      if (isEditMode && initialData) {
+         const updatedChallenge: Challenge = {
+          ...initialData,
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          difficulty: difficulty,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          maxParticipants: data.maxParticipants,
+          evaluationType: data.evaluationType,
+          status: data.startDate > new Date() ? 'Upcoming' : (data.endDate < new Date() ? 'Completed' : 'Active'),
+        };
 
-      toast({
-        title: 'Challenge Created!',
-        description: 'Your new challenge is now live on the Challenges page.',
-      });
+        const updatedChallenges = currentChallenges.map((c: Challenge) => c.id === initialData.id ? updatedChallenge : c);
+        localStorage.setItem('challenges', JSON.stringify(updatedChallenges));
+        
+        toast({
+          title: 'Challenge Updated!',
+          description: 'Your challenge has been successfully updated.',
+        });
+
+      } else {
+        const newChallenge: Challenge = {
+          id: `challenge-${Date.now()}`,
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          difficulty: difficulty,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          host: 'Community Host',
+          participantCount: 0,
+          status: data.startDate > new Date() ? 'Upcoming' : 'Active',
+          maxParticipants: data.maxParticipants,
+          evaluationType: data.evaluationType,
+        };
+        const updatedChallenges = [newChallenge, ...currentChallenges];
+        localStorage.setItem('challenges', JSON.stringify(updatedChallenges));
+        toast({
+          title: 'Challenge Created!',
+          description: 'Your new challenge is now live on the Challenges page.',
+        });
+      }
+
       form.reset();
       router.push('/challenges');
     } catch (error) {
@@ -147,7 +188,7 @@ export function HostChallengeForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
@@ -171,7 +212,7 @@ export function HostChallengeForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Difficulty Level</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a difficulty" />
@@ -220,7 +261,7 @@ export function HostChallengeForm() {
                             selected={field.value}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0))
+                                date < new Date(new Date().setHours(0, 0, 0, 0)) && !isEditMode
                             }
                             initialFocus
                         />
@@ -304,7 +345,7 @@ export function HostChallengeForm() {
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   className="flex flex-col space-y-1"
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">
@@ -325,7 +366,7 @@ export function HostChallengeForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full md:w-auto">Create Challenge</Button>
+        <Button type="submit" className="w-full md:w-auto">{isEditMode ? 'Save Changes' : 'Create Challenge'}</Button>
       </form>
     </Form>
   );
