@@ -24,6 +24,9 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { useRouter } from 'next/navigation';
+import type { Challenge } from '@/lib/data';
+import { challenges as initialChallenges } from '@/lib/data';
 
 const hostChallengeSchema = z.object({
   title: z.string().min(5, { message: 'Title must be at least 5 characters long.' }),
@@ -49,6 +52,7 @@ const hostChallengeSchema = z.object({
 type HostChallengeFormValues = z.infer<typeof hostChallengeSchema>;
 
 export function HostChallengeForm() {
+  const router = useRouter();
   const { toast } = useToast();
   const form = useForm<HostChallengeFormValues>({
     resolver: zodResolver(hostChallengeSchema),
@@ -60,12 +64,43 @@ export function HostChallengeForm() {
   });
 
   function onSubmit(data: HostChallengeFormValues) {
-    console.log(data);
-    toast({
-      title: 'Challenge Submitted!',
-      description: 'Your new challenge has been submitted for review.',
-    });
-    form.reset();
+    const difficulty = data.difficulty.charAt(0).toUpperCase() + data.difficulty.slice(1) as Challenge['difficulty'];
+
+    const newChallenge: Challenge = {
+      id: `challenge-${Date.now()}`,
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      difficulty: difficulty,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      host: 'Community Host',
+      participantCount: 0,
+      status: data.startDate > new Date() ? 'Upcoming' : 'Active',
+    };
+
+    try {
+      const storedChallengesJSON = localStorage.getItem('challenges');
+      const currentChallenges = storedChallengesJSON ? JSON.parse(storedChallengesJSON) : initialChallenges;
+      
+      const updatedChallenges = [newChallenge, ...currentChallenges];
+      
+      localStorage.setItem('challenges', JSON.stringify(updatedChallenges));
+
+      toast({
+        title: 'Challenge Created!',
+        description: 'Your new challenge is now live on the Challenges page.',
+      });
+      form.reset();
+      router.push('/challenges');
+    } catch (error) {
+      console.error("Failed to save challenge:", error);
+      toast({
+        variant: "destructive",
+        title: 'Save Failed',
+        description: 'Could not save the challenge. Please try again.',
+      });
+    }
   }
 
   return (
@@ -119,11 +154,11 @@ export function HostChallengeForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="reasoning">Reasoning</SelectItem>
-                    <SelectItem value="creative-writing">Creative Writing</SelectItem>
-                    <SelectItem value="code-generation">Code Generation</SelectItem>
-                    <SelectItem value="translation">Translation</SelectItem>
-                    <SelectItem value="summarization">Summarization</SelectItem>
+                    <SelectItem value="Reasoning">Reasoning</SelectItem>
+                    <SelectItem value="Creative Writing">Creative Writing</SelectItem>
+                    <SelectItem value="Code Generation">Code Generation</SelectItem>
+                    <SelectItem value="Translation">Translation</SelectItem>
+                    <SelectItem value="Summarization">Summarization</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

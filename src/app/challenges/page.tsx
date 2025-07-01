@@ -1,13 +1,33 @@
-import type { Metadata } from 'next';
-import { challenges } from '@/lib/data';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { challenges as initialChallenges, type Challenge } from '@/lib/data';
 import { ChallengeCard } from '@/components/challenges/challenge-card';
 
-export const metadata: Metadata = {
-    title: 'Browse Challenges',
-    description: 'Find and join AI model evaluation challenges.',
-};
-
 export default function ChallengesPage() {
+  const [challenges, setChallenges] = useState<Challenge[]>(initialChallenges);
+
+  useEffect(() => {
+    document.title = 'Browse Challenges';
+    try {
+      const storedChallengesJSON = localStorage.getItem('challenges');
+      if (storedChallengesJSON) {
+        const storedChallenges = JSON.parse(storedChallengesJSON).map((c: any) => ({
+          ...c,
+          startDate: new Date(c.startDate),
+          endDate: new Date(c.endDate),
+        }));
+        setChallenges(storedChallenges);
+      } else {
+        // If nothing is in local storage, initialize it with the static data.
+        localStorage.setItem('challenges', JSON.stringify(initialChallenges));
+      }
+    } catch (error) {
+      console.error("Failed to load challenges from local storage:", error);
+      // Fallback to initial challenges is already handled by useState initial value
+    }
+  }, []);
+
   return (
     <div className="container py-10">
       <div className="space-y-2 mb-8">
