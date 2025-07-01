@@ -25,11 +25,15 @@ export default function ChallengeDetailPage() {
 
     try {
       const storedChallengesJSON = localStorage.getItem('challenges');
-      const allChallenges: Challenge[] = storedChallengesJSON ? JSON.parse(storedChallengesJSON).map((c: any) => ({
-          ...c,
-          startDate: new Date(c.startDate),
-          endDate: new Date(c.endDate),
-        })) : initialChallenges;
+      const allChallenges: Challenge[] = storedChallengesJSON 
+        ? JSON.parse(storedChallengesJSON).map((c: any) => {
+            if (!c || !c.id || !c.startDate || !c.endDate) return null;
+            const startDate = new Date(c.startDate);
+            const endDate = new Date(c.endDate);
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return null;
+            return { ...c, startDate, endDate };
+          }).filter(Boolean) as Challenge[]
+        : initialChallenges;
 
       const foundChallenge = allChallenges.find(c => c.id === id);
       setChallenge(foundChallenge || null);
