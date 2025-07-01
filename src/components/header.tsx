@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { TestTube2 } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { TestTube2, PlusCircle } from 'lucide-react';
 
 export function Header() {
   return (
@@ -16,8 +15,17 @@ export function Header() {
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
+           <Button asChild variant="ghost">
+              <Link href="/dashboard">Dashboard</Link>
+           </Button>
+           <Button asChild variant="ghost">
+              <Link href="/challenges">Challenges</Link>
+           </Button>
            <Button asChild>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/challenges/host">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Host Challenge
+            </Link>
           </Button>
         </div>
       </div>

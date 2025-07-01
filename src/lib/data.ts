@@ -94,3 +94,67 @@ export const prompts: Prompt[] = [
     ],
   },
 ];
+
+export type Challenge = {
+  id: string;
+  title: string;
+  description: string;
+  host: string;
+  startDate: Date;
+  endDate: Date;
+  participantCount: number;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  status: 'Upcoming' | 'Active' | 'Completed';
+  category: string;
+};
+
+export const challenges: Challenge[] = [
+  {
+    id: 'challenge-1',
+    title: 'Creative Story Generation Contest',
+    description: 'Generate the most creative and engaging short story based on a given prompt. The story should be no more than 500 words.',
+    host: 'AI Enthusiasts Inc.',
+    startDate: new Date('2024-09-01T09:00:00'),
+    endDate: new Date('2024-09-30T17:00:00'),
+    participantCount: 152,
+    difficulty: 'Intermediate',
+    status: 'Active',
+    category: 'Creative Writing',
+  },
+  {
+    id: 'challenge-2',
+    title: 'Code Generation Challenge: Python',
+    description: 'Write a Python script to solve a series of algorithmic problems. Efficiency and correctness will be evaluated.',
+    host: 'DevMasters',
+    startDate: new Date('2024-10-01T00:00:00'),
+    endDate: new Date('2024-10-21T23:59:59'),
+    participantCount: 230,
+    difficulty: 'Advanced',
+    status: 'Upcoming',
+    category: 'Code Generation',
+  },
+  {
+    id: 'challenge-3',
+    title: 'Translate Medical Texts',
+    description: 'Translate a set of complex medical research abstracts from English to German. Accuracy is paramount.',
+    host: 'Global Health AI',
+    startDate: new Date('2024-10-15T12:00:00'),
+    endDate: new Date('2024-11-15T12:00:00'),
+    participantCount: 45,
+    difficulty: 'Advanced',
+    status: 'Upcoming',
+    category: 'Translation',
+  },
+  {
+    id: 'challenge-4',
+    title: 'Introduction to AI Reasoning',
+    description: 'A beginner-friendly challenge to test logical reasoning capabilities of language models on simple puzzles.',
+    host: 'LearnAI',
+    startDate: new Date('2024-07-01T00:00:00'),
+    endDate: new Date('2024-07-31T23:59:59'),
+    participantCount: 500,
+    difficulty: 'Beginner',
+    status: 'Completed',
+    category: 'Reasoning',
+  },
+];
